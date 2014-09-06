@@ -5,7 +5,7 @@ ayudantes =[
 	("martina",[("ordenSuperior",6),("expresionLambda",7),("listasPorComprension",8)]),
 	("juan", [("aplicacionParcial",9), ("listasPorComprension",6), ("sinonimosDeTipos",7)]),
 	("sharon", [("currificación",5), ("aplicacionParcial",8), ("tuplas",9), ("ordenSuperior",8)])
-		   ]
+	]
 
 martina = ("martina",[("ordenSuperior",6),("expresionLambda",7),("listasPorComprension",8)])
 
@@ -37,7 +37,7 @@ juezFranco ayudante = (promedio . puntajes) ayudante
 
 
 juezMaithe ayudante | sabeTema "ordenSuperior" ayudante = 9.0
-					| otherwise = 5.0
+	            | otherwise = 5.0
 
 juezHernan ayudante = (fromIntegral .length . conocimientos) ayudante   
 
