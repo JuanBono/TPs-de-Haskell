@@ -46,9 +46,9 @@ caracteristicasNormales = [pino, ombu, eucalipto, jacaranda, cerezo]
 
 -- Lista con los meses del año, la primer letra esta en mayuscula, tenerlo en cuenta al llamar a las funciones.
 meses = [
-		"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
-		"Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
-		]
+	"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio",
+	"Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"
+	]
 
 -- PARTE 1 --
 --a--
@@ -72,8 +72,8 @@ lluvia :: Double -> Arbol -> Arbol
 lluvia milimetros (nombre, altura, ancho, vitalidad) = (nombre, altura + 1, ancho, vitalidad+(milimetros/100))
 temperatura :: Double -> Arbol -> Arbol
 temperatura grados (nombre, altura, ancho, vitalidad) | grados < 0 = (nombre, altura, ancho, vitalidad * 0.5)
-						      						  | grados > 40 = (nombre, altura, ancho, vitalidad * 0.6)
-						      						  | otherwise = (nombre, altura, ancho, vitalidad)
+						      | grados > 40 = (nombre, altura, ancho, vitalidad * 0.6)
+						      | otherwise = (nombre, altura, ancho, vitalidad)
 granizo :: Arbol -> Arbol
 granizo (nombre, altura, ancho, vitalidad) = (nombre, altura / 2, ancho / 2, vitalidad)
 --d--
@@ -100,14 +100,14 @@ anchoEspecie = darAncho . filtroArbol
 --	 Debe tener buena vitalidad y el mes no debe contener la letra 'r'
 sePuedeTransplantar :: Arbol -> [Char] -> Bool
 sePuedeTransplantar (_, _, _, vitalidad) mes = (vitalidad > 1) && 
-											   not (elem 'r' mes) && 
-											   (elem mes meses)
+						not (elem 'r' mes) && 
+						(elem mes meses)
 
 --b) sePuedePodar/2. Evalua si un arbol se puede transplantar en un mes dado.
 --	 El arbol debe poder transplantarse en ese mes y su altura debe ser mayor a la normal.
 sePuedePodar :: Arbol -> [Char] -> Bool
 sePuedePodar (nombre, altura, ancho, vitalidad) mes = (sePuedeTransplantar (nombre, altura, ancho, vitalidad) mes) 
-													  && (altura > alturaEspecie nombre)
+							&& (altura > alturaEspecie nombre)
 
 --c biomasa/1. Estima la biomasa de una reserva dada.
 biomasa::  [Arbol]-> Double
