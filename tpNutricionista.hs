@@ -1,113 +1,117 @@
-type Persona = (Nombre, Edad, Sexo, Caracteristicas, [Enfermedad], [Deporte], [Ocupacion])
-type Nombre = [Char]
-type Edad = Int
+--TP Nutricionista
+type Palabra = [Char]
 type Sexo = Char
+type Edad = Integer
+type Peso = Integer
+type Altura = Integer
+type Contextura = Palabra
 type Caracteristicas = (Peso, Altura, Contextura)
-type Altura = Double
-type Peso = Double
-type Contextura = [Char]
-type Enfermedad = [Char]
-type Deporte = [Char]
-type Ocupacion = [Char]
+type Enfermedades = [Palabra]
+type Deportes = [Palabra]
+type Ocupaciones = [Palabra]
+type Persona = (Palabra, Edad, Sexo, Caracteristicas, Enfermedades, Deportes, Ocupaciones)
 
-personasDeEjemplo :: [Persona]
-personasDeEjemplo = [("Mariano", 20, 'M', (68.0, 169.0, "Mediana"), [], ["basket"], ["estudiante"]),
-					("Leandro", 12, 'M', (38.0, 123.0, "Mediana"), ["alergias"], ["futbol", "skate", "taekwondo"], ["estudiante"]),
-					("Gisella", 30, 'F', (59.0, 162.0, "Pequeña"), [], ["pilates"], ["ama de casa", "maestra"]),
-					("Mara", 42, 'F', (88.0, 195.0, "Grande"), ["diabetes", "alergias"], [],["abogada", "profesora"]),
-					("Osvaldo", 25, 'M', (98.0, 165.0, "Grande"), [], [], ["empleado"])
+mariano :: Persona
+leandro :: Persona
+gisella :: Persona
+mara :: Persona
+osvaldo :: Persona
+
+mariano = ("Mariano", 20, 'M', (68, 169, "Mediana"), [], ["basket"], ["estudiante"] ) 
+leandro = ("Leandro", 12, 'M', (38, 123, "Mediana"), ["alergias"], ["futbol", "skate","taekwondo"], ["estudiante"] ) 
+gisella = ("Gisella", 30, 'F', (59, 162, "Pequenia"), [], ["pilates"], ["ama de casa","maestra"] ) 
+mara = ("Mara", 42, 'F', (88, 195, "Grande"), ["diabetes","alergias"], [],["abogada", "profesora"] ) 
+osvaldo = ("Osvaldo", 25, 'M', (98, 165, "Grande"), [], [], ["empleado"] )
+
+listaPersonas = [mariano, leandro, gisella, mara, osvaldo]
+
+------------ Funciones Auxiliares ---------------------------------------------
+darNombre (nombre, _, _, _, _, _,_) = nombre
+darEdad (_, edad, _, _, _, _,_) = edad
+darSexo (_, _, sexo, _, _, _, _) = sexo
+darCaracteristicas (_, _, _, caracteristicas, _, _, _) = caracteristicas
+primero (x, _, _) = x
+segundo (_, y, _) = y
+tercero (_, _, z) = z
+darPeso persona = (primero . darCaracteristicas) persona
+darAltura persona = (segundo . darCaracteristicas) persona
+darContextura persona = (tercero . darCaracteristicas) persona
+darEnfermedades (_, _, _, _, enfermedades, _, _) = enfermedades
+darDeportes (_, _, _, _, _, deportes, _) = deportes
+darOcupaciones (_, _, _, _, _, _, ocupaciones) = ocupaciones
+cuadrado x = x * x
+infixr 2 `xor`  -- same precedence & associativity as (||)
+xor :: Bool -> Bool -> Bool
+xor True p = not p
+xor False p = p
+-------------------------------------------------------------------------------
+
+-- 1) sedentaria/1. (No practica deportes y tiene menos de 2 ocupaciones)
+sedentaria :: Persona -> Bool 
+sedentaria persona = (length.darDeportes) persona < 1 && ( (length . darOcupaciones) persona) < 2 
+
+--2) activa/1. practica al menos un deporte o tiene mas de dos ocupaciones. 
+activa :: Persona -> Bool
+activa persona = (length . darDeportes) persona > 0 || (length . darOcupaciones) persona > 2
+
+--3)pesoIdeal/1. Peso Ideal = 0.75 * (altura en cm ­ - 150) + 50 
+pesoIdeal :: Persona -> Double
+pesoIdeal persona = 0.75 * (fromIntegral ((darAltura persona) - 150)) + 50
+
+--4) imc/1.  El IMC se obtiene dividiendo el peso por la estatura al cuadrado
+imc :: Persona -> Double
+imc persona = 10000* ( fromIntegral (darPeso persona) )/ (fromIntegral ((cuadrado . darAltura) persona ))  
+ --sadasdas
+--5)
+imcAdecuado :: Persona -> Double
+imcAdecuado persona = (imc persona) + fromIntegral (div ((darEdad persona)-25) 10)  
+estado :: Persona -> Palabra
+estado persona | imcAdecuado persona < 20 && darEdad persona > 24 = "bajo peso"
+	       | imcAdecuado persona >= 20 && imcAdecuado persona < 25 && darEdad persona > 24 = "peso normal"
+	       | imcAdecuado persona >= 25 && imcAdecuado persona <= 30 && darEdad persona > 24 = "sobrepeso"
+	       | imcAdecuado persona > 30 && darEdad persona > 24 = "obesidad"
+	       | otherwise = "Piensen en los ninios !!!"
+
+-----------------------------Parte 2 -------------------------------------------------------------
+personasDeEjemplo = [
+	("Mariano", 20, 'M', (68, 169, "Mediana"), [], ["basket"],["estudiante"] ), 
+	("Leandro", 12, 'M', (38, 123, "Mediana"),["alergias"],["futbol", "skate", "taekwondo"],["estudiante"] ), 
+	("Gisella", 30, 'F', (59, 162, "Pequenia"), [],["pilates"], ["ama de casa", "maestra"] ), 
+	("Mara", 42, 'F', (88, 195, "Grande"),["diabetes","alergias"], [], ["abogada", "profesora"] ), 
+	("Osvaldo", 25, 'M', (98, 165,"Grande"), [], [], ["empleado"])
 					]
 
-caloriasPorTarea :: [([Char], Int)]
-caloriasPorTarea = [("basket",1100), ("futbol",1100), ("skate",800), ("maestra", 320), ("estudiante", 220), ("empleado", 480)]
+--6) personasEnEstado/1
+personasEnEstado :: Palabra -> [Persona] -> [Palabra]
+personasEnEstado estadoDado lista = [darNombre persona | persona <- lista, (estado persona) == estadoDado]
 
-enfermedadesPeligrosas = ["diabetes", "asma", "anemia"]
-
-darNombre (nombre, _, _, _, _, _, _) = nombre
-darPeso (_, _, _, (peso, _, _), _, _, _) = peso
-darEnfermedades (_, _, _, _, enfermedad, _, _) = enfermedad
-
---1)
-sedentaria :: Persona -> Bool
-sedentaria (_, _, _, _, _, deportes, ocupaciones) = (deportes == []) && (2 > (length ocupaciones))
-
---2)
-activa :: Persona -> Bool
-activa (_, _, _, _, _, deportes, ocupaciones) = (deportes /= []) || (2 <= (length ocupaciones))
-
---3)
-pesoIdeal :: Persona -> Double
-pesoIdeal (_, _, _, (_, altura, _), _, _, _) = 0.75 * (altura - 150) + 50
-
---4)
-imc :: Persona -> Double
-imc (_, _, _, (peso, altura, _), _, _, _) = imcDadoPesoYAltura peso altura
-
-imcDadoPesoYAltura peso altura = 10000 * peso / (altura * altura)
-
---5)
-estado :: Persona -> [Char]
-estado (_, edad, _, (peso, altura, _), _, _, _) | edad > 24 = darEstado(round(imcDadoPesoYAltura peso altura) - (div (edad - 25) 10))
-                                                | otherwise = "error"
-
-darEstado imc | imc < 20 = "bajo peso"
-	      | (20 <= imc) && (imc < 25) = "peso normal"
-	      | (25 >= imc) && (imc < 30) = "sobrepeso"
-	      | otherwise = "obesidad"
-
---6)
-personasEnEstado :: [Char] -> [Persona] -> [Nombre]
-personasEnEstado estadoDado listaPersonas = [darNombre persona | persona <- listaPersonas, tieneEstado estadoDado persona]
-
-tieneEstado estadoDado persona = (estadoDado == estado persona)
-
---7)
---a)
-seleccionarPersonas :: (Persona -> Bool) -> [Persona] -> [Nombre]
-seleccionarPersonas f listaPersonas = map darNombre (filter f listaPersonas)
-
---b)
-practicaUnDeporteDado :: Deporte -> Persona -> Bool
-practicaUnDeporteDado deporte (_, _, _, _, _, listaDeportes, _) = (filter (== deporte) listaDeportes) /= []
-
-esMujer :: Persona -> Bool
-esMujer (_, _, sexo, _, _, _, _) = sexo == 'F'
-
---c)
+--7) seleccionarPersonas/2.
+seleccionarPersonas :: (Persona -> Bool) -> [Persona] -> [Persona]
+seleccionarPersonas funcion lista = filter funcion lista 
+--7c) 
 dentroDelRango :: Double -> Persona -> Bool
-dentroDelRango rango persona = rango > (porcentajeDeDiferencia persona)
-
--- Esta formula no esta bien pero no se cual sera.
-porcentajeDeDiferencia persona = 100 * abs(1 - (pesoIdeal persona / darPeso persona))
+dentroDelRango rango persona = ( fromIntegral (darPeso persona) ) > ( (pesoIdeal persona) - rango) && fromIntegral (darPeso persona) < ( (pesoIdeal persona) + rango )
 
 --8)
-diferenciaDePeso :: [Persona] -> [(Nombre, Peso, Peso, Double)]
-diferenciaDePeso listaPersonas = map darNuevaTupla listaPersonas
-
-darNuevaTupla persona = (darNombre persona, pesoIdeal persona, darPeso persona, porcentajeDeDiferencia persona)
+deltaPeso :: Persona -> Double
+deltaPeso persona = 100 * abs (1 - (pesoIdeal persona / (fromIntegral (darPeso persona))) )
+dif :: Persona -> (Palabra, Double, Double)
+dif persona = (darNombre persona, pesoIdeal persona, deltaPeso persona) 
+diferenciaDePeso listaPersonas = map dif listaPersonas
 
 --9)
-estaEnRiesgo :: Persona -> Bool
-estaEnRiesgo persona = (porcentajeDeDiferencia persona > 80) || tieneEnfermedadPeligrosa persona
+estasEnLaB = ["diabetes", "asma", "anemia"]
 
-tieneEnfermedadPeligrosa persona = (filter esEnfermedadPeligrosa (darEnfermedades persona)) /= []
+interseccion [] lista2 = []
+interseccion lista1 lista2 = [x | x <- lista1, elem x lista2]
 
-esEnfermedadPeligrosa enfermedad = elem enfermedad enfermedadesPeligrosas
+enRiesgo persona = (interseccion (darEnfermedades persona) estasEnLaB) /= [] || deltaPeso persona > 0.8 * (pesoIdeal persona)  
 
---10)
-calorias :: Persona -> [([Char], Int)] -> Int
-calorias (_, _, _, _, _, deportes, ocupaciones) listaTareas = darCaloriasTotal (deportes ++ ocupaciones) listaTareas
+toqueDeMascherano (nombre, edad, sexo, caracteristicas, enfermedades, deportes, ocupaciones) = 
+	(nombre, edad, sexo, caracteristicas, [] , deportes, ocupaciones) 
 
-darCaloriasTotal tareasRealizadas listaTareas = sumarCalorias (calcularCalorias tareasRealizadas listaTareas) tareasRealizadas (promedioLista (map snd listaTareas))
+--enRiesgo mara
 
-sumarCalorias listaCalorias tareasRealizadas promedio = sum listaCalorias + cantidadTareasNoEncontradas listaCalorias tareasRealizadas * promedio
-
-calcularCalorias tareasRealizadas listaTareas = map (darCaloriasPorTarea listaTareas) (filter (seEncuentraTarea listaTareas) tareasRealizadas)
-
-seEncuentraTarea listaTareas tarea = elem tarea (map fst listaTareas)
-
-darCaloriasPorTarea listaTareas tarea = snd(head(filter ((== tarea) . fst) listaTareas))
-
-cantidadTareasNoEncontradas listaCalorias listaTareas = length listaTareas - length listaCalorias
-
-promedioLista lista = div (sum lista) (length lista)
+funcion = (even . cuadrado . sum)
+ensenarArtes artesMarciales arte |elem arte artesMarciales = artesMarciales ++ [arte, "saltar"]
+				 | otherwise = artesMarciales ++ "saltar"
